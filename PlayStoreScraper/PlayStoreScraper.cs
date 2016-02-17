@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using WebUtilsLib;
+//using WebUtilsLib;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Globalization;
@@ -14,6 +14,8 @@ using System.ComponentModel;
 using System.Reflection;
 using PlayStoreScraper.Exporters;
 using PlayStoreScraper.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PlayStoreScraper
 {
@@ -24,233 +26,80 @@ namespace PlayStoreScraper
         // Response Parser
         private static PlayStoreParser parser = new PlayStoreParser();
 
-        /// <summary>
-        /// Crawl Play Store based on keywords given and export the result to CSV
-        /// </summary>
-        /// <param name="keywords">Array of keywords</param>
-        /// <param name="exporter">Exporter class for exporting. If not null, the IExporter.Export() will be called.</param>
-        /// <param name="maxAppUrls">Maximum Scraped App Urls for each keyword. To scrape without limit, set the value to 0</param>
-        /// <param name="downloadDelay">Download Delay in milliseconds</param>
-        /// <param name="writeCallback">Callback method for writing the App Data</param>
-        public static void Crawl(string[] keywords, IExporter exporter = null, int maxAppUrls = 0, int downloadDelay = 0,
-            Action<AppModel> writeCallback = null)
+	
+		public static async Task<AppModel> ParseAppUrls(string url, int downloadDelay = 0, IExporter exporter = null)
         {
-            if (exporter != null)
-            {
-                exporter.Open();
-            }
+			AppModel parsedApp = null;
 
-            // Collect App Urls from keywords
-            foreach (string keyword in keywords)
-            {
-                ISet<string> urls = CollectAppUrls(keyword, maxAppUrls);
-
-                // Apply download delay
-                if (downloadDelay > 0)
-                {
-                    Thread.Sleep(downloadDelay);
-                }
-
-                // Parse each of App Urls found
-                ParseAppUrls(urls, downloadDelay, exporter, writeCallback);
-            }
-
-            if (exporter != null)
-            {
-                exporter.Close();
-            }
-        }
-
-        private static ISet<string> CollectAppUrls(string searchField, int maxAppUrls)
-        {
-            ISet<string> resultUrls = new HashSet<string>();
-
-            log.Info("Crawling Search Term : [ " + searchField + " ]");
-
-            string crawlUrl = String.Format(Consts.CRAWL_URL, searchField);
-
-            // HTML Response
-            string response;
-
-            // Executing Web Requests
-            using (WebRequests server = new WebRequests())
-            {
-                // Creating Request Object
-                server.Host = Consts.HOST;
-
-                int insertedAppCount = 0;
-                int skippedAppCount = 0;
-                int errorsCount = 0;
-
-                string postData = Consts.INITIAL_POST_DATA;
-
-                do
-                {
-                    // Executing Request
-                    response = server.Post(crawlUrl, postData);
-
-                    // Checking Server Status
-                    if (server.StatusCode != System.Net.HttpStatusCode.OK)
-                    {
-                        log.Error("Http Error - Status Code: " + server.StatusCode);
-
-                        errorsCount++;
-
-                        if (errorsCount > Consts.MAX_REQUEST_ERRORS)
-                        {
-                            log.Info("Crawl Stopped: MAX_REQUEST_ERRORS reached");
-                            break;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-
-                    // Parsing Links out of Html Page
-                    foreach (string url in parser.ParseAppUrls(response))
-                    {
-                        if (!resultUrls.Contains(url))
-                        {
-                            resultUrls.Add(url);
-
-                            log.Info("Inserted App: " + url);
-
-                            ++insertedAppCount;
-
-                            if (maxAppUrls > 0 && insertedAppCount >= maxAppUrls)
-                            {
-                                goto exit;
-                            }
-                        }
-                        else
-                        {
-                            ++skippedAppCount;
-                            log.Info("Duplicated App. Skipped: " + url);
-                        }
-                    }
-
-                    // Get pagTok value that will be used to fetch next stream data.
-                    // If not found, that means we have reached the end of stream.
-                    string pagTok = getPageToken(response);
-                    if (pagTok.Length == 0)
-                    {
-                        break;
-                    }
-
-                    // Build the next post data
-                    postData = String.Format(Consts.POST_DATA, pagTok);
-
-                } while (true);
-
-            exit:
-                log.Info("Inserted App Count: " + insertedAppCount);
-                log.Info("Skipped App Count: " + skippedAppCount);
-                log.Info("Error Count: " + errorsCount + "\n");
-            }
-
-            return resultUrls;
-        }
-
-        private static void ParseAppUrls(ISet<string> urls, int downloadDelay = 0, IExporter exporter = null,
-            Action<AppModel> writeCallback = null)
-        {
             log.Info("Parsing App URLs...");
 
-            int parsedAppCount = 0;
-
-            // Retry Counter (Used for exponential wait increasing logic)
-            int retryCounter = 0;
-
             // Creating Instance of Web Requests Server
-            WebRequests server = new WebRequests();
+			HttpClient httpClient = new HttpClient();
 
-            foreach (string url in urls)
+            try
             {
-                try
+                // Building APP URL
+                string appUrl = Consts.APP_URL_PREFIX + url;
+
+				string response = await httpClient.GetStringAsync(appUrl);
+
+                // Configuring server and Issuing Request
+//                server.Headers.Add(Consts.ACCEPT_LANGUAGE);
+//                server.Host = Consts.HOST;
+//                server.Encoding = "utf-8";
+//                server.EncodingDetection = WebRequests.CharsetDetection.DefaultCharset;
+//                string response = server.Get(appUrl);
+
+                // Sanity Check
+//                if (String.IsNullOrEmpty(response) || server.StatusCode != System.Net.HttpStatusCode.OK)
+//                {
+//                    log.Info("Error opening app page : " + appUrl);
+//
+//                    // Renewing WebRequest Object to get rid of Cookies
+//                   // server = new WebRequests();
+//
+//                    // Inc. retry counter
+//                    retryCounter++;
+//
+//                    log.Info("Retrying:" + retryCounter);
+//
+//                    // Checking for maximum retry count
+//                    double waitTime;
+//                    if (retryCounter >= 11)
+//                    {
+//                        waitTime = TimeSpan.FromMinutes(35).TotalMilliseconds;
+//                    }
+//                    else
+//                    {
+//                        // Calculating next wait time ( 2 ^ retryCounter seconds)
+//                        waitTime = TimeSpan.FromSeconds(Math.Pow(2, retryCounter)).TotalMilliseconds;
+//                    }
+//
+//                    // Hiccup to avoid google blocking connections in case of heavy traffic from the same IP
+//                    Thread.Sleep(Convert.ToInt32(waitTime));
+//                }
+//                else
                 {
-                    // Building APP URL
-                    string appUrl = Consts.APP_URL_PREFIX + url;
+                    
 
-                    // Configuring server and Issuing Request
-                    server.Headers.Add(Consts.ACCEPT_LANGUAGE);
-                    server.Host = Consts.HOST;
-                    server.Encoding = "utf-8";
-                    server.EncodingDetection = WebRequests.CharsetDetection.DefaultCharset;
-                    string response = server.Get(appUrl);
+                    // Parsing App Data
+                    parsedApp = parser.ParseAppPage(response, appUrl);
 
-                    // Sanity Check
-                    if (String.IsNullOrEmpty(response) || server.StatusCode != System.Net.HttpStatusCode.OK)
+                    // Export the App Data
+                    if (exporter != null)
                     {
-                        log.Info("Error opening app page : " + appUrl);
+                        log.Info("Parsed App: " + parsedApp.Name);
 
-                        // Renewing WebRequest Object to get rid of Cookies
-                        server = new WebRequests();
-
-                        // Inc. retry counter
-                        retryCounter++;
-
-                        log.Info("Retrying:" + retryCounter);
-
-                        // Checking for maximum retry count
-                        double waitTime;
-                        if (retryCounter >= 11)
-                        {
-                            waitTime = TimeSpan.FromMinutes(35).TotalMilliseconds;
-                        }
-                        else
-                        {
-                            // Calculating next wait time ( 2 ^ retryCounter seconds)
-                            waitTime = TimeSpan.FromSeconds(Math.Pow(2, retryCounter)).TotalMilliseconds;
-                        }
-
-                        // Hiccup to avoid google blocking connections in case of heavy traffic from the same IP
-                        Thread.Sleep(Convert.ToInt32(waitTime));
-                    }
-                    else
-                    {
-                        // Reseting retry counter
-                        retryCounter = 0;
-
-                        // Parsing App Data
-                        AppModel parsedApp = parser.ParseAppPage(response, appUrl);
-
-                        // Export the App Data
-                        if (exporter != null)
-                        {
-                            log.Info("Parsed App: " + parsedApp.Name);
-
-                            exporter.Write(parsedApp);
-                        }
-
-                        // Pass the App Data to callback method
-                        if (writeCallback != null)
-                        {
-                            writeCallback(parsedApp);
-                        }
-
-                        // Default action is print to screen
-                        if (exporter == null && writeCallback == null)
-                        {
-                            Console.WriteLine(parsedApp);
-                        }
-
-                        ++parsedAppCount;
-
-                        // Apply download delay
-                        if (downloadDelay > 0)
-                        {
-                            Thread.Sleep(downloadDelay);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
+                        exporter.Write(parsedApp);
+					}
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
 
-            log.Info("Finished. Parsed App count: " + parsedAppCount + "\n");
+			return parsedApp;
         }
         
         /// <summary>
