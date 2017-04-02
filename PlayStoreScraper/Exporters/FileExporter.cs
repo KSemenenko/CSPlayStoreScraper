@@ -15,9 +15,9 @@ namespace PlayStoreScraper.Exporters
     {
         public static void ValidateFieldNames(string[] fieldNames)
         {
-            foreach (string fieldName in fieldNames)
+            foreach(string fieldName in fieldNames)
             {
-                if (string.IsNullOrWhiteSpace(fieldName))
+                if(string.IsNullOrWhiteSpace(fieldName))
                 {
                     throw new ArgumentException("Field Name can't be empty or null");
                 }
@@ -34,7 +34,7 @@ namespace PlayStoreScraper.Exporters
 
             permissionSet.AddPermission(writePermission);
 
-            if (permissionSet.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet))
+            if(permissionSet.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet))
             {
                 return true;
             }

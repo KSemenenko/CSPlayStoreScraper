@@ -38,7 +38,7 @@ namespace PlayStoreScraper.Exporters
         ///     If true, application will write column headers before writing data (default = true)
         /// </param>
         /// <param name="IsAppend">If true, append the data to CSV file instead of overwriting it.</param>
-        public CSVExporter(string OutputFilePath, string[] FieldNames = null, bool IsWriteHeaders=true, bool IsAppend=false)
+        public CSVExporter(string OutputFilePath, string[] FieldNames = null, bool IsWriteHeaders = true, bool IsAppend = false)
         {
             this.OutputFilePath = OutputFilePath;
             this.FieldNames = FieldNames;
@@ -49,7 +49,7 @@ namespace PlayStoreScraper.Exporters
         public void Open()
         {
             // Validating Write Permissions on output path
-            if (!ValidateFilePermissions(OutputFilePath))
+            if(!ValidateFilePermissions(OutputFilePath))
             {
                 throw new IOException("Insuficient Permissions - Cannot write on path : " + OutputFilePath);
             }
@@ -59,19 +59,18 @@ namespace PlayStoreScraper.Exporters
 
             Console.WriteLine("Result will be written to: " + OutputFilePath);
 
-            if (FieldNames != null)
+            if(FieldNames != null)
             {
                 _fieldNames = FieldNames;
 
                 ValidateFieldNames(_fieldNames);
-                
             }
             else
             {
                 _fieldNames = AppModel.GetAllPropertyNames();
             }
 
-            if (IsWriteHeaders)
+            if(IsWriteHeaders)
             {
                 writer.WriteLine("\"" + string.Join("\",\"", _fieldNames) + "\"");
             }
@@ -88,15 +87,15 @@ namespace PlayStoreScraper.Exporters
             string delimiter = "";
             string line = "";
 
-            foreach (string fieldName in _fieldNames)
+            foreach(string fieldName in _fieldNames)
             {
                 object value = appModel.GetPropertyValue(fieldName);
 
-                if (value != null && value.GetType() == typeof(DateTime))
+                if(value != null && value.GetType() == typeof(DateTime))
                 {
                     // ReferenceDate is formatted as DateTime.
                     // We have to do a fieldname check because there is no Date type in C#.
-                    if (fieldName.Equals("ReferenceDate"))
+                    if(fieldName.Equals("ReferenceDate"))
                     {
                         value = ((DateTime)value).ToString("yyyy-MM-dd HH:mm");
                     }

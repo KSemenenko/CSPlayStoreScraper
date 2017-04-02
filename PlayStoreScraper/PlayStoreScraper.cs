@@ -26,18 +26,14 @@ namespace PlayStoreScraper
         // Response Parser
         private static PlayStoreParser parser = new PlayStoreParser();
 
-	
-		public static async Task<AppModel> ParseAppUrls(string url, int downloadDelay = 0, IExporter exporter = null)
+        public static async Task<AppModel> ParseAppUrls(string url, int downloadDelay = 0, IExporter exporter = null)
         {
-			AppModel parsedApp = null;
+            AppModel parsedApp = null;
 
             log.Info("Parsing App URLs...");
 
             // Creating Instance of Web Requests Server
-			HttpClient httpClient = new HttpClient(new HttpClientHandler()
-            {
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
+            HttpClient httpClient = new HttpClient(new HttpClientHandler() {AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip});
             httpClient.DefaultRequestHeaders.Add("User-Agent", Consts.USER_AGENT);
             httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
             httpClient.DefaultRequestHeaders.Add("Accept-Language", Consts.ACCEPT_LANGUAGE);
@@ -50,7 +46,7 @@ namespace PlayStoreScraper
                 // Building APP URL
                 string appUrl = Consts.APP_URL_PREFIX + url + string.Format(Consts.APP_URL_LANGUAGE, lang.TwoLetterISOLanguageName);
 
-				string response = await httpClient.GetStringAsync(appUrl);
+                string response = await httpClient.GetStringAsync(appUrl);
 
                 // Configuring server and Issuing Request
 //                server.Headers.Add(Consts.ACCEPT_LANGUAGE);
@@ -89,28 +85,26 @@ namespace PlayStoreScraper
 //                }
 //                else
                 {
-                    
-
                     // Parsing App Data
                     parsedApp = parser.ParseAppPage(response, appUrl);
 
                     // Export the App Data
-                    if (exporter != null)
+                    if(exporter != null)
                     {
                         log.Info("Parsed App: " + parsedApp.Name);
 
                         exporter.Write(parsedApp);
-					}
+                    }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 log.Error(ex);
             }
 
-			return parsedApp;
+            return parsedApp;
         }
-        
+
         /// <summary>
         /// Get Page Token for play store streaming search result.
         /// </summary>
@@ -121,7 +115,7 @@ namespace PlayStoreScraper
             string pagTok = "";
             string regex = @"'\[.*\\42((?:.(?!\\42))*:S:.*?)\\42.*\]\\n'";
             Match match = Regex.Match(response, regex);
-            if (match.Success)
+            if(match.Success)
             {
                 pagTok = DecodeEncodedNonAsciiCharacters(match.Groups[1].Value, true);
             }
@@ -131,9 +125,9 @@ namespace PlayStoreScraper
         protected static string EncodeNonAsciiCharacters(string value)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (char c in value)
+            foreach(char c in value)
             {
-                if (c > 127)
+                if(c > 127)
                 {
                     // This character is too big for ASCII
                     string encodedValue = "\\u" + ((int)c).ToString("x4");
@@ -150,18 +144,12 @@ namespace PlayStoreScraper
         protected static string DecodeEncodedNonAsciiCharacters(string value, bool isDoubleSlash = false)
         {
             string regex = @"\\u(?<Value>[a-zA-Z0-9]{4})";
-            if (isDoubleSlash)
+            if(isDoubleSlash)
             {
                 regex = @"\\" + regex;
             }
 
-            return Regex.Replace(
-                value,
-                regex,
-                m =>
-                {
-                    return ((char)int.Parse(m.Groups["Value"].Value, NumberStyles.HexNumber)).ToString();
-                });
+            return Regex.Replace(value, regex, m => { return ((char)int.Parse(m.Groups["Value"].Value, NumberStyles.HexNumber)).ToString(); });
         }
     }
 }

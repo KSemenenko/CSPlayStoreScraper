@@ -10,15 +10,12 @@ namespace PlayStoreScraper
 {
     class Program
     {
-		static void Main(string[] args)
-		{
+        static void Main(string[] args)
+        {
+            AppModel appModel = PlayStoreScraper.ParseAppUrls("/store/apps/details?id=com.NNGames.starchef_android").Result;
 
-			AppModel appModel = PlayStoreScraper.ParseAppUrls ("/store/apps/details?id=com.NNGames.starchef_android").Result;
-
-
-			Console.WriteLine($"App Name: {appModel.Name}, App URL: {appModel.Url}, {appModel.CurrentVersion}, {appModel.CoverImageUrl}");
-		
-		}
+            Console.WriteLine($"App Name: {appModel.Name}, App URL: {appModel.Url}, {appModel.CurrentVersion}, {appModel.CoverImageUrl}");
+        }
 
         //static void Main2(string[] args)
         //{
@@ -44,11 +41,9 @@ namespace PlayStoreScraper
         //    // Start crawling for the keywords with maximum 30 Apps result and download delay 1 second.
         //    PlayStoreScraper.Crawl(keywords, exporter, 30, 1000);
 
-
         //    // Same example with exporting to JSON file
         //    exporter = new JSONExporter(outputFilePath + ".json", fieldNames);
         //    PlayStoreScraper.Crawl(keywords, exporter, 30, 1000);
-
 
         //    // Same example with callback method
         //    PlayStoreScraper.Crawl(keywords, null, 30, 1000, appModel =>

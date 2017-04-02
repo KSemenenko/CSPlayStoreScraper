@@ -42,7 +42,7 @@ namespace PlayStoreScraper.Exporters
         public void Open()
         {
             // Validating Write Permissions on output path
-            if (!ValidateFilePermissions(OutputFilePath))
+            if(!ValidateFilePermissions(OutputFilePath))
             {
                 throw new IOException("Insuficient Permissions - Cannot write on path : " + OutputFilePath);
             }
@@ -52,7 +52,7 @@ namespace PlayStoreScraper.Exporters
 
             Console.WriteLine("Result will be written to: " + OutputFilePath);
 
-            if (FieldNames != null)
+            if(FieldNames != null)
             {
                 _fieldNames = FieldNames;
 
@@ -63,20 +63,19 @@ namespace PlayStoreScraper.Exporters
                 _fieldNames = AppModel.GetAllPropertyNames();
             }
 
-            writer.Write("[");  // Write opening bracket
+            writer.Write("["); // Write opening bracket
         }
 
         public void Close()
         {
-            writer.Write("]");  // Write closing bracket
+            writer.Write("]"); // Write closing bracket
             writer.Close();
             Console.WriteLine("JSON Export has finished");
         }
 
         public void Write(AppModel appModel)
         {
-            JsonSerializerSettings jsonSettings = new JsonSerializerSettings() { 
-                ContractResolver = new JSONIncludeContractResolver(new HashSet<string>(_fieldNames)) };
+            JsonSerializerSettings jsonSettings = new JsonSerializerSettings() {ContractResolver = new JSONIncludeContractResolver(new HashSet<string>(_fieldNames))};
 
             writer.Write(delimiter + JsonConvert.SerializeObject(appModel, jsonSettings));
 
@@ -103,12 +102,12 @@ namespace PlayStoreScraper.Exporters
             {
                 JsonProperty jsonProperty = base.CreateProperty(member, memberSerialization);
 
-                if (!properties.Contains(jsonProperty.PropertyName))
+                if(!properties.Contains(jsonProperty.PropertyName))
                 {
                     jsonProperty.ShouldSerialize = instance => { return false; };
                 }
 
-                return jsonProperty; 
+                return jsonProperty;
             }
         }
     }

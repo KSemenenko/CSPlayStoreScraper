@@ -12,38 +12,40 @@ namespace PlayStoreScraper.Models
     /// </summary>
     public class AppModel
     {
-        public string Url                      {get;set;}
-        public DateTime ScrapedDate            {get;set;}
-        public string   Name                   {get;set;}
-        public string   Developer              {get;set;}
-        public bool     IsTopDeveloper         {get;set;}
-        public string   DeveloperURL           {get;set;}
-        public DateTime PublicationDate        {get;set;}
-        public string   Category               {get;set;}
-        public bool     IsFree                 {get;set;}
-        public string   Price                  {get;set;}
-        public string   CoverImageUrl          {get;set;}
-        public string   Description            {get;set;}
-        public double   ReviewScore            {get;set;}
-        public int      ReviewTotal            {get;set;}
-        public int      FiveStarsReviews       {get;set;}
-        public int      FourStarsReviews       {get;set;}
-        public int      ThreeStarsReviews      {get;set;}
-        public int      TwoStarsReviews        {get;set;}
-        public int      OneStarReviews         {get;set;}   
+        public string Url { get; set; }
+        public DateTime ScrapedDate { get; set; }
+        public string Name { get; set; }
+        public string Developer { get; set; }
+        public bool IsTopDeveloper { get; set; }
+        public string DeveloperURL { get; set; }
+        public DateTime PublicationDate { get; set; }
+        public string Category { get; set; }
+        public bool IsFree { get; set; }
+        public string Price { get; set; }
+        public string CoverImageUrl { get; set; }
+        public string Description { get; set; }
+        public double ReviewScore { get; set; }
+        public int ReviewTotal { get; set; }
+        public int FiveStarsReviews { get; set; }
+        public int FourStarsReviews { get; set; }
+        public int ThreeStarsReviews { get; set; }
+        public int TwoStarsReviews { get; set; }
+        public int OneStarReviews { get; set; }
+
         /// <summary>
         /// App Size in MB. Value -1 means "Varies with device"
         /// </summary>
-        public Double   AppSize                {get;set;}
-        public string   Installs               {get;set;}
-        public string   CurrentVersion         {get;set;}
-        public string   MinimumOSVersion       {get;set;}
-        public string   ContentRating          {get;set;}
-        public bool     HaveInAppPurchases     {get;set;}
-        public string   InAppPriceRange        {get;set;}
-        public string   DeveloperEmail         {get;set;}
-        public string   DeveloperWebsite       {get;set;}
-        public string   DeveloperPrivacyPolicy {get;set;}
+        public Double AppSize { get; set; }
+
+        public string Installs { get; set; }
+        public string CurrentVersion { get; set; }
+        public string MinimumOSVersion { get; set; }
+        public string ContentRating { get; set; }
+        public bool HaveInAppPurchases { get; set; }
+        public string InAppPriceRange { get; set; }
+        public string DeveloperEmail { get; set; }
+        public string DeveloperWebsite { get; set; }
+        public string DeveloperPrivacyPolicy { get; set; }
 
         public AppModel()
         {
@@ -61,7 +63,7 @@ namespace PlayStoreScraper.Models
             List<string> list = new List<string>();
 
             Type appModelType = typeof(AppModel);
-            foreach (PropertyDescriptor prop in TypeDescriptor.GetProperties(appModelType))
+            foreach(PropertyDescriptor prop in TypeDescriptor.GetProperties(appModelType))
             {
                 list.Add(prop.Name);
             }
@@ -78,17 +80,17 @@ namespace PlayStoreScraper.Models
         {
             Object obj = this;
 
-            foreach (String part in name.Split('.'))
+            foreach(String part in name.Split('.'))
             {
                 Type type = obj.GetType();
                 PropertyInfo info = type.GetProperty(part);
-                if (info == null)
+                if(info == null)
                 {
                     return null;
                 }
 
                 obj = info.GetValue(this, null);
-                if (obj == null)
+                if(obj == null)
                 {
                     return null;
                 }
