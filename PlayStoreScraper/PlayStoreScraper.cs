@@ -26,7 +26,7 @@ namespace PlayStoreScraper
         // Response Parser
         private static PlayStoreParser parser = new PlayStoreParser();
 
-        public static async Task<AppModel> ParseAppUrls(string url, int downloadDelay = 0, IExporter exporter = null)
+        public static async Task<AppModel> ParseAppUrls(string url, CultureInfo culture, int downloadDelay = 0, IExporter exporter = null)
         {
             AppModel parsedApp = null;
 
@@ -38,13 +38,12 @@ namespace PlayStoreScraper
             httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
             httpClient.DefaultRequestHeaders.Add("Accept-Language", Consts.ACCEPT_LANGUAGE);
             httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate");
-            CultureInfo lang = new CultureInfo("ru");
-            Thread.CurrentThread.CurrentCulture = lang;
+            Thread.CurrentThread.CurrentCulture = culture;
 
             try
             {
                 // Building APP URL
-                string appUrl = Consts.APP_URL_PREFIX + url + string.Format(Consts.APP_URL_LANGUAGE, lang.TwoLetterISOLanguageName);
+                string appUrl = Consts.APP_URL_PREFIX + url + string.Format(Consts.APP_URL_LANGUAGE, culture.TwoLetterISOLanguageName);
 
                 string response = await httpClient.GetStringAsync(appUrl);
 

@@ -1,6 +1,7 @@
 ﻿using PlayStoreScraper.Exporters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace PlayStoreScraper
     {
         static void Main(string[] args)
         {
-            AppModel appModel = PlayStoreScraper.ParseAppUrls("/store/apps/details?id=com.NNGames.starchef_android").Result;
+            AppModel appModel = PlayStoreScraper.ParseAppUrls("/store/apps/details?id=com.NNGames.starchef_android", new CultureInfo("ru")).Result;
 
             Console.WriteLine($"App Name: {appModel.Name}, App URL: {appModel.Url}, {appModel.CurrentVersion}, {appModel.CoverImageUrl}");
         }
