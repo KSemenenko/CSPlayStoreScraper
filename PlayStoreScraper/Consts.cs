@@ -17,7 +17,8 @@ namespace PlayStoreScraper
         public static readonly string INITIAL_POST_DATA  = "ipf=1&xhr=1";
         public static readonly string POST_DATA          = INITIAL_POST_DATA + "&pagTok={0}";
         public static readonly string APP_URL_PREFIX     = "https://play.google.com";
-        public static readonly string ACCEPT_LANGUAGE    = "Accept-Language: en-US;q=0.6,en;q=0.4,es;q=0.2";
+        public static readonly string APP_URL_LANGUAGE   = "&hl={0}";
+        public static readonly string ACCEPT_LANGUAGE    = "en-US;q=0.6,en;q=0.4,es;q=0.2";
         public static readonly string REVIEWS_POST_DATA  = "reviewType=0&pageNum={0}&id={1}&reviewSortOrder=2&xhr=1";
         public static readonly string USER_AGENT         = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36";
 

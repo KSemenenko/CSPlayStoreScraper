@@ -34,12 +34,21 @@ namespace PlayStoreScraper
             log.Info("Parsing App URLs...");
 
             // Creating Instance of Web Requests Server
-			HttpClient httpClient = new HttpClient();
+			HttpClient httpClient = new HttpClient(new HttpClientHandler()
+            {
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+            });
+            httpClient.DefaultRequestHeaders.Add("User-Agent", Consts.USER_AGENT);
+            httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("Accept-Language", Consts.ACCEPT_LANGUAGE);
+            httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate");
+            CultureInfo lang = new CultureInfo("ru");
+            Thread.CurrentThread.CurrentCulture = lang;
 
             try
             {
                 // Building APP URL
-                string appUrl = Consts.APP_URL_PREFIX + url;
+                string appUrl = Consts.APP_URL_PREFIX + url + string.Format(Consts.APP_URL_LANGUAGE, lang.TwoLetterISOLanguageName);
 
 				string response = await httpClient.GetStringAsync(appUrl);
 
